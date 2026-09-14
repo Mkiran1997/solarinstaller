@@ -273,7 +273,7 @@ export function LeadDetail() {
                   <TextField
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Anything worth remembering about this lead…"
+                    placeholder="Enter Notes"
                     multiline
                     minRows={8}
                     fullWidth

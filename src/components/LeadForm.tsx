@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Alert, Box, Button, Grid, Stack, TextField } from '@mui/material'
-import { isValidEmail, isValidPhone } from '../lib/validation'
+import { isValidEmail, isValidPhone, sanitizePhoneInput } from '../lib/validation'
 import type { NewLeadInput } from '../types/lead'
 
 interface LeadFormProps {
@@ -80,7 +80,7 @@ export function LeadForm({ onSubmit, onCancel }: LeadFormProps) {
 
         <TextField
           label="Name"
-          placeholder="Jane Homeowner"
+          placeholder="Enter Name"
           value={form.name}
           onChange={(e) => updateField('name', e.target.value)}
           error={!!fieldErrors.name}
@@ -95,7 +95,7 @@ export function LeadForm({ onSubmit, onCancel }: LeadFormProps) {
             <TextField
               label="Email"
               type="email"
-              placeholder="jane@example.com"
+              placeholder="Enter Email"
               value={form.email ?? ''}
               onChange={(e) => updateField('email', e.target.value)}
               error={!!fieldErrors.email}
@@ -108,11 +108,12 @@ export function LeadForm({ onSubmit, onCancel }: LeadFormProps) {
             <TextField
               label="Phone"
               type="tel"
-              placeholder="555-0100"
+              placeholder="Enter Phone"
               value={form.phone ?? ''}
-              onChange={(e) => updateField('phone', e.target.value)}
+              onChange={(e) => updateField('phone', sanitizePhoneInput(e.target.value))}
               error={!!fieldErrors.phone}
               helperText={fieldErrors.phone}
+              slotProps={{ htmlInput: { inputMode: 'tel' } }}
               required
               fullWidth
             />
@@ -121,7 +122,7 @@ export function LeadForm({ onSubmit, onCancel }: LeadFormProps) {
 
         <TextField
           label="Source"
-          placeholder="Website, referral, comparison site…"
+          placeholder="Enter Source"
           value={form.source ?? ''}
           onChange={(e) => updateField('source', e.target.value)}
           fullWidth
@@ -129,7 +130,7 @@ export function LeadForm({ onSubmit, onCancel }: LeadFormProps) {
 
         <TextField
           label="Notes"
-          placeholder="Anything worth remembering about this lead"
+          placeholder="Enter Notes"
           value={form.notes ?? ''}
           onChange={(e) => updateField('notes', e.target.value)}
           multiline
