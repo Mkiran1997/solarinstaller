@@ -26,12 +26,15 @@ For each test account:
 
 1. Go to **Authentication → Users → Add user**, enter an email + password,
    and check **Auto Confirm User** (so the demo doesn't need a real inbox).
-2. Copy the new user's **UID** from the users table.
-3. Back in **SQL Editor**, run (replace the placeholders):
+2. Copy the new user's **UID** from the users table. A `profiles` row is
+   created for it automatically (with a generated placeholder username, e.g.
+   `user_...`) — the `handle_new_user` trigger in `schema.sql` does this for
+   every new user, dashboard-created or not.
+3. Back in **SQL Editor**, give it a friendlier username (replace the
+   placeholders):
 
    ```sql
-   insert into public.profiles (id, username)
-   values ('<paste-the-uid>', 'testuser1');
+   update public.profiles set username = 'testuser1' where id = '<paste-the-uid>';
    ```
 
    This is what lets that account log in with either the email or

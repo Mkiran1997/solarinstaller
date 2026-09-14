@@ -23,9 +23,19 @@ create policy "profiles_select_own"
 -- ever written by the handle_new_user trigger below (as the table owner,
 -- which bypasses RLS), not directly by clients.
 
--- Populate profiles automatically whenever a new auth user signs up.
--- Expects the username to be passed as user metadata at signup:
---   supabase.auth.signUp({ email, password, options: { data: { username } } })
+-- Populate profiles automatically whenever a new auth user is created —
+-- whether that's the app's own sign-up (which can pass a chosen username as
+-- user metadata: supabase.auth.signUp({ email, password, options: { data: {
+-- username } } })) or a user added manually in Studio (Authentication ->
+-- Add user), which sets no metadata at all.
+--
+-- `profiles.username` is NOT NULL, so if no username was supplied this must
+-- fall back to something rather than insert null — otherwise this trigger
+-- fails, which rolls back the entire user creation with a generic "Database
+-- error creating new user". The fallback is derived from the user's id, so
+-- it's always unique and never fails. Update it to something friendlier
+-- afterward with:
+--   update public.profiles set username = 'testuser1' where id = '<uid>';
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -34,7 +44,10 @@ set search_path = public
 as $$
 begin
   insert into public.profiles (id, username)
-  values (new.id, new.raw_user_meta_data ->> 'username');
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data ->> 'username', 'user_' || replace(new.id::text, '-', ''))
+  );
   return new;
 end;
 $$;
